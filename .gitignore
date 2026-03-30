@@ -1,2 +1,6 @@
 data/parquet/
 .env
+logs/
+data/raw/
+data/processed/
+config/*
