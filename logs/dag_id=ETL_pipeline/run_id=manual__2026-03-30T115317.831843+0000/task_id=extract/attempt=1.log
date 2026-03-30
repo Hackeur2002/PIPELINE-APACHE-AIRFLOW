@@ -1,0 +1,28 @@
+{"timestamp":"2026-03-30T11:53:24.529111Z","level":"info","event":"Stats instance was created in PID 7 but accessed in PID 137. Re-initializing.","logger":"airflow.stats","filename":"stats.py","lineno":57}
+{"timestamp":"2026-03-30T11:53:24.570118Z","level":"info","event":"DAG bundles loaded: dags-folder","logger":"airflow.dag_processing.bundles.manager.DagBundlesManager","filename":"manager.py","lineno":179}
+{"timestamp":"2026-03-30T11:53:24.575976Z","level":"info","event":"Filling up the DagBag from /opt/airflow/dags/pipeline.py","logger":"airflow.models.dagbag.BundleDagBag","filename":"dagbag.py","lineno":593}
+{"timestamp":"2026-03-30T11:53:27.610239Z","level":"warning","event":"The `airflow.decorators.task` attribute is deprecated. Please use `'airflow.sdk.task'`.","category":"DeprecatedImportWarning","filename":"/opt/airflow/dags/pipeline.py","lineno":9,"logger":"py.warnings"}
+{"timestamp":"2026-03-30T11:53:27.610505Z","level":"warning","event":"The `airflow.decorators.dag` attribute is deprecated. Please use `'airflow.sdk.dag'`.","category":"DeprecatedImportWarning","filename":"/opt/airflow/dags/pipeline.py","lineno":9,"logger":"py.warnings"}
+{"timestamp":"2026-03-30T11:53:27.694336Z","level":"info","event":"DAG extract start RAW_PATH=/opt/airflow/data/raw","logger":"unusual_prefix_5364f853e0291e2b81541d66d6ee04a6789a37d2_pipeline","filename":"pipeline.py","lineno":44}
+{"timestamp":"2026-03-30T11:53:27.694605Z","level":"info","event":"STEP_START extract_book meta={'raw_path': '/opt/airflow/data/raw'}","logger":"main","filename":"logger.py","lineno":28}
+{"timestamp":"2026-03-30T11:53:27.694723Z","level":"info","event":"STEP_START extract_book.fetch_page meta={'url': 'https://books.toscrape.com/'}","logger":"main","filename":"logger.py","lineno":28}
+{"timestamp":"2026-03-30T11:53:29.290028Z","level":"info","event":"STEP_END extract_book.fetch_page elapsed_seconds=1.595","logger":"main","filename":"logger.py","lineno":37}
+{"timestamp":"2026-03-30T11:53:29.292013Z","level":"info","event":"extract_book found_articles=20","logger":"main","filename":"main.py","lineno":67}
+{"timestamp":"2026-03-30T11:53:29.292545Z","level":"info","event":"extract_book progress=1/20","logger":"main","filename":"main.py","lineno":74}
+{"timestamp":"2026-03-30T11:53:29.294409Z","level":"info","event":"extract_book progress=10/20","logger":"main","filename":"main.py","lineno":74}
+{"timestamp":"2026-03-30T11:53:29.295878Z","level":"info","event":"extract_book progress=20/20","logger":"main","filename":"main.py","lineno":74}
+{"timestamp":"2026-03-30T11:53:29.314251Z","level":"info","event":"extract_book saving_parquet out_path=/opt/airflow/data/raw/books_scraping.parquet shape=(20, 5)","logger":"main","filename":"main.py","lineno":78}
+{"timestamp":"2026-03-30T11:53:29.522216Z","level":"info","event":"STEP_END extract_book elapsed_seconds=1.827","logger":"main","filename":"logger.py","lineno":37}
+{"timestamp":"2026-03-30T11:53:29.523277Z","level":"info","event":"DAG extract books_scraping shape=(20, 5)","logger":"unusual_prefix_5364f853e0291e2b81541d66d6ee04a6789a37d2_pipeline","filename":"pipeline.py","lineno":47}
+{"timestamp":"2026-03-30T11:53:29.523491Z","level":"info","event":"STEP_START extract_csv meta={'raw_path': '/opt/airflow/data/raw', 'source': '/opt/airflow/data/Books.csv'}","logger":"main","filename":"logger.py","lineno":28}
+{"timestamp":"2026-03-30T11:53:36.280171Z","level":"info","event":"extract_csv saving_parquet out_path=/opt/airflow/data/raw/books_csv.parquet shape=(271360, 8)","logger":"main","filename":"main.py","lineno":87}
+{"timestamp":"2026-03-30T11:53:37.802804Z","level":"info","event":"STEP_END extract_csv elapsed_seconds=8.279","logger":"main","filename":"logger.py","lineno":37}
+{"timestamp":"2026-03-30T11:53:37.803256Z","level":"info","event":"DAG extract books_csv shape=(271360, 8)","logger":"unusual_prefix_5364f853e0291e2b81541d66d6ee04a6789a37d2_pipeline","filename":"pipeline.py","lineno":50}
+{"timestamp":"2026-03-30T11:53:37.803475Z","level":"info","event":"STEP_START extract_sqlite meta={'raw_path': '/opt/airflow/data/raw', 'db_path': '/opt/airflow/data/books_database.db'}","logger":"main","filename":"logger.py","lineno":28}
+{"timestamp":"2026-03-30T11:53:37.803621Z","level":"info","event":"STEP_START extract_sqlite.query meta={'query': 'SELECT * FROM books'}","logger":"main","filename":"logger.py","lineno":28}
+{"timestamp":"2026-03-30T11:53:38.010331Z","level":"info","event":"STEP_END extract_sqlite.query elapsed_seconds=0.207","logger":"main","filename":"logger.py","lineno":37}
+{"timestamp":"2026-03-30T11:53:38.010608Z","level":"info","event":"extract_sqlite saving_parquet out_path=/opt/airflow/data/raw/books_sqlite.parquet shape=(823, 28)","logger":"main","filename":"main.py","lineno":101}
+{"timestamp":"2026-03-30T11:53:38.158783Z","level":"info","event":"STEP_END extract_sqlite elapsed_seconds=0.355","logger":"main","filename":"logger.py","lineno":37}
+{"timestamp":"2026-03-30T11:53:38.159160Z","level":"info","event":"DAG extract books_sqlite shape=(823, 28)","logger":"unusual_prefix_5364f853e0291e2b81541d66d6ee04a6789a37d2_pipeline","filename":"pipeline.py","lineno":53}
+{"timestamp":"2026-03-30T11:53:40.186979Z","level":"info","event":"DAG extract done output=/opt/airflow/data/raw/books_scraping.parquet,/opt/airflow/data/raw/books_csv.parquet,/opt/airflow/data/raw/books_sqlite.parquet","logger":"unusual_prefix_5364f853e0291e2b81541d66d6ee04a6789a37d2_pipeline","filename":"pipeline.py","lineno":59}
+{"timestamp":"2026-03-30T11:53:40.278654Z","level":"info","event":"Done. Returned value was: None","logger":"airflow.task.operators.airflow.providers.standard.decorators.python._PythonDecoratedOperator","filename":"python.py","lineno":230}
