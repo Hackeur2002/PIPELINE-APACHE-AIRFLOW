@@ -2,6 +2,11 @@ from sqlite3.dbapi2 import connect
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
+import os
+from minio import Minio
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Extraire en faisant le scraping des livres
 base_url_book = "https://books.toscrape.com/"
@@ -73,7 +78,7 @@ def extract_sqlite() -> pd.DataFrame:
     return df
 
 def transform_books(_books: pd.DataFrame, _books_csv: pd.DataFrame, _books_sqlite: pd.DataFrame) -> pd.DataFrame:
-    # normaliser les colonnes price de _books et _books_sqlite
+    # Normaliser les colonnes price de _books et _books_sqlite
     _books["price"] = pd.to_numeric(_books["price"].str.replace("Â£", ""))
     _books_sqlite["price"] = pd.to_numeric(_books_sqlite["price"])
 
@@ -81,36 +86,66 @@ def transform_books(_books: pd.DataFrame, _books_csv: pd.DataFrame, _books_sqlit
     _books_csv.drop(columns=['Image-URL-M', 'Image-URL-L'], inplace=True)
     _books_sqlite.drop(columns=['format', 'weight_grams', 'dimensions', 'edition', 'series', 'volume', 'original_language', 'translator', 'cover_type', 'age_group', 'bestseller', 'award_winner', 'created_at'], inplace=True)
     
-    # renommer les colonnes
+    # Renommer les colonnes
     _books_csv.rename(columns={'Book-Title': 'title', 'Book-Author': 'author', 'Year-Of-Publication': 'publication_year', 'Publisher': 'publisher', 'Image-URL-S': 'image'}, inplace=True)
     _books_sqlite.rename(columns={'in_stock': 'availability'}, inplace=True)
 
-    # créer une colonne id dans les df _books et _books_csv
+    # Créer une colonne id dans les df _books et _books_csv
     last_id = _books_sqlite["id"].max()
     _books["id"] = range(last_id + 1, last_id + len(_books) + 1)
     _books_csv["id"] = range(_books["id"].max() + 1, _books["id"].max() + 1 + len(_books_csv))
 
-    # fusionner les dataframes
+    # Fusionner les dataframes
     all_books = pd.concat([_books, _books_csv, _books_sqlite])
+
+    # Convertir les colonnes dans les bons types
+    all_books["price"] = pd.to_numeric(all_books["price"], errors="coerce")
+    all_books["availability"] = pd.to_numeric(all_books["availability"], errors="coerce")
+    all_books["rating"] = pd.to_numeric(all_books["rating"], errors="coerce")
+    all_books["publication_year"] = pd.to_numeric(all_books["publication_year"], errors="coerce")
+
     return all_books
 
+def save_to_parquet_and_upload(df: pd.DataFrame):
+    client = Minio(
+        os.getenv("MINIO_ENDPOINT"),
+        access_key=os.getenv("MINIO_ROOT_USER"),
+        secret_key=os.getenv("MINIO_ROOT_PASSWORD"),
+        secure=False
+    )
+
+    bucket_name = "books"
+
+    if not client.bucket_exists(bucket_name):
+        client.make_bucket(bucket_name)
+    
+    df_grouped = df.groupby("publication_year")
+
+    for year, group in df_grouped:
+        print(year)
+        print(group.shape)
+
+        folder = f'publication_year_{int(year)}'
+        local_path = f'../data/parquet/books/{folder}.parquet'
+
+        os.makedirs("../data/parquet/books", exist_ok=True)
+
+        # Sauvegarder localement le parquet
+        group.to_parquet(local_path, engine='pyarrow')
+
+        object_name = f'books/{folder}.parquet'
+
+        client.fput_object(bucket_name, object_name, local_path)
+        print(f"Uploaded {object_name} to {bucket_name} Ok")
+
 if __name__ == "__main__":
+    # Extract
     books = extract_book()
     books_csv = extract_csv()
     books_sqlite = extract_sqlite()
 
+    # Transform
     all_books = transform_books(books, books_csv, books_sqlite)
 
-    # print(all_books.isnull().sum())
-    # print(books.columns)
-    # print(books_csv.columns)
-    # print(books_sqlite.columns)
-    # print(books.head())
-    # print(books_csv.head())
-    # print(books_sqlite.head())
-    print(books.shape)
-    print(books_csv.shape)
-    print(books_sqlite.shape)
-    print(all_books.shape)
-    print(all_books.columns)
-    print(all_books.head())
+    # Load
+    save_to_parquet_and_upload(all_books)
